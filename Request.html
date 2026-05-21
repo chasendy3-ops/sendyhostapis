@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SendyHost API's · Request Feature</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:opsz,wght@14..32,300;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+      background: #0a0f1e;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e3a8a;
+      border-radius: 8px;
+      box-shadow: 0 0 8px #3b82f6;
+    }
+
+    body {
+      font-family: 'Inter', 'JetBrains Mono', monospace;
+      background: #0a0c14;
+      color: #e1e9f0;
+      line-height: 1.5;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(0, 100, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 100, 255, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at center, #0f2b5c30 0%, #0a0c14 80%);
+      animation: glowPulse 8s infinite alternate;
+      z-index: -2;
+    }
+
+    @keyframes glowPulse {
+      0% { opacity: 0.5; transform: scale(1); }
+      100% { opacity: 1; transform: scale(1.15); }
+    }
+
+    .navbar {
+      background: rgba(8, 12, 25, 0.85);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid #1e3a8a80;
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 30px rgba(0, 50, 150, 0.25);
+    }
+
+    .navbar-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .brand {
+      font-size: 1.6rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #a5d8ff, #3b82f6, #2563eb);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.5px;
+      text-shadow: 0 0 8px #3b82f660;
+    }
+
+    .back-link {
+      color: #7e9bc0;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: 0.2s;
+    }
+    .back-link:hover { color: #60a5fa; text-shadow: 0 0 8px #3b82f6; }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      min-height: 80vh;
+    }
+
+    .request-card {
+      background: rgba(15, 22, 36, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid #2b6eff80;
+      border-radius: 48px;
+      padding: 2.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 170, 255, 0.1);
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .request-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .request-header i {
+      font-size: 3rem;
+      color: #3b82f6;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 15px #3b82f6;
+    }
+    .request-header h2 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, #fff, #90caf9);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .request-header p {
+      color: #7e9bc0;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #b0c7ed;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    .form-group label i {
+      margin-right: 8px;
+      color: #3b82f6;
+    }
+    .form-group input, .form-group textarea {
+      width: 100%;
+      background: #0f1a2f;
+      border: 1px solid #1e3a8a;
+      border-radius: 20px;
+      padding: 1rem 1.2rem;
+      color: white;
+      font-family: 'Inter', monospace;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .form-group input:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 20px #3b82f6;
+    }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      border: 1px solid #3b82f6;
+      color: white;
+      padding: 1rem;
+      border-radius: 40px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 1rem;
+    }
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px #3b82f6;
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+    }
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #0d1326;
+      border: 1px solid #2b6eff;
+      border-radius: 60px;
+      padding: 0.8rem 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: white;
+      font-size: 0.85rem;
+      z-index: 1000;
+      transition: 0.3s ease;
+      opacity: 0;
+      visibility: hidden;
+      box-shadow: 0 0 30px #2563eb;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+      visibility: visible;
+    }
+    .toast.success i { color: #2effb0; }
+    .toast.error i { color: #ff5f56; }
+    .toast.loading i { animation: spin 1s linear infinite; }
+
+    .info-note {
+      background: #0a1020cc;
+      border-radius: 16px;
+      padding: 1rem;
+      margin-top: 1.5rem;
+      font-size: 0.7rem;
+      color: #6b8cae;
+      text-align: center;
+      border: 1px dashed #1e3a8a;
+    }
+    .info-note i { margin-right: 6px; color: #3b82f6; }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 640px) {
+      .request-card { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-container">
+      <span class="brand">⚡ SendyHost API's</span>
+      <a href="docs.html" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="request-card">
+      <div class="request-header">
+        <i class="fas fa-paper-plane"></i>
+        <h2>Request New Feature</h2>
+        <p>Kirim saran, request endpoint, atau laporan bug ke developer</p>
+      </div>
+
+      <form id="requestForm">
+        <div class="form-group">
+          <label><i class="fas fa-user"></i> Nama / Username</label>
+          <input type="text" id="name" placeholder="Contoh: SendyHost" required>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-envelope"></i> Email / Telegram ID</label>
+          <input type="text" id="contact" placeholder="@username atau email" required>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-code"></i> Pesan / Request</label>
+          <textarea id="message" placeholder="Jelaskan fitur yang diinginkan atau kendala yang ditemui..." required></textarea>
+        </div>
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <i class="fas fa-paper-plane"></i> Kirim Request
+        </button>
+      </form>
+
+      <div class="info-note">
+        <i class="fas fa-info-circle"></i> Request akan langsung dikirim ke owner via Telegram. 
+        Balasan akan dikirim ke kontak yang Anda cantumkan.
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">
+    <i id="toastIcon" class="fas fa-check-circle"></i>
+    <span id="toastMessage">Pesan terkirim!</span>
+  </div>
+
+  <script>
+    // BOT TELEGRAM CONFIGURATION
+    const BOT_TOKEN = '8401471630:AAFFes0xPxsP0Xq7U_vKBqH0ZTZIjvL68Zk';
+    const OWNER_ID = '7546117130';
+    const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+
+    const form = document.getElementById('requestForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const toast = document.getElementById('toast');
+    const toastIcon = document.getElementById('toastIcon');
+    const toastMessage = document.getElementById('toastMessage');
+
+    function showToast(message, type = 'success') {
+      toastMessage.textContent = message;
+      toastIcon.className = type === 'success' ? 'fas fa-check-circle' : (type === 'error' ? 'fas fa-exclamation-triangle' : 'fas fa-spinner fa-spin');
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 4000);
+    }
+
+    async function sendToTelegram(name, contact, message) {
+      const currentTime = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
+      const text = `📨 *REQUEST API BARU* 📨\n\n👤 *Nama:* ${escapeMarkdown(name)}\n📱 *Kontak:* ${escapeMarkdown(contact)}\n📝 *Pesan:*\n${escapeMarkdown(message)}\n\n⏰ *Waktu:* ${currentTime}\n🌐 *Source:* SendyHost Request Page`;
+      
+      const payload = {
+        chat_id: OWNER_ID,
+        text: text,
+        parse_mode: 'Markdown',
+        disable_web_page_preview: true
+      };
+
+      try {
+        const response = await fetch(TELEGRAM_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.description || 'Gagal mengirim pesan');
+        }
+        
+        return { success: true };
+      } catch (error) {
+        console.error('Telegram API Error:', error);
+        return { success: false, error: error.message };
+      }
+    }
+
+    function escapeMarkdown(text) {
+      if (!text) return '';
+      const specialChars = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'];
+      let escaped = text;
+      specialChars.forEach(char => {
+        escaped = escaped.replace(new RegExp('\\' + char, 'g'), '\\' + char);
+      });
+      return escaped.substring(0, 3500);
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const name = document.getElementById('name').value.trim();
+      const contact = document.getElementById('contact').value.trim();
+      const message = document.getElementById('message').value.trim();
+      
+      if (!name || !contact || !message) {
+        showToast('Harap isi semua field!', 'error');
+        return;
+      }
+      
+      if (message.length < 5) {
+        showToast('Pesan terlalu pendek (minimal 5 karakter)', 'error');
+        return;
+      }
+      
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+      showToast('Mengirim request ke owner...', 'loading');
+      
+      const result = await sendToTelegram(name, contact, message);
+      
+      if (result.success) {
+        showToast('✅ Request berhasil dikirim! Owner akan merespon segera.', 'success');
+        form.reset();
+      } else {
+        showToast(`❌ Gagal mengirim: ${result.error}`, 'error');
+      }
+      
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim Request';
+    });
+  </script>
+</body>
+</html>
