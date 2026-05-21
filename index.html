@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title id="page">Docs SendyHost API's</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- JetBrains Mono + Inter sebagai fallback modern -->
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  
+  <style>
+    /* RESET & GLOBAL — dark mode permanent dengan aksen blue glow */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+      background: #0a0f1e;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e3a8a;
+      border-radius: 8px;
+      box-shadow: 0 0 8px #3b82f6;
+    }
+
+    body {
+      font-family: 'JetBrains Mono', 'Inter', monospace;
+      background: #0a0c14;  /* dasar hitam kebiruan */
+      color: #e1e9f0;
+      line-height: 1.6;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+      transition: none; /* dark mode permanen */
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* background effect: grid + glow */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(0, 100, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 100, 255, 0.02) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at center, #0f2b5c20 0%, #0a0c14 70%);
+      animation: glowPulse 8s infinite alternate;
+      z-index: -2;
+    }
+
+    @keyframes glowPulse {
+      0% { opacity: 0.5; transform: scale(1); }
+      100% { opacity: 1; transform: scale(1.2); }
+    }
+
+    /* loading screen */
+    #loading-screen {
+      position: fixed;
+      inset: 0;
+      background: #0a0c14;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.5s;
+    }
+
+    .loading-spinner-large {
+      width: 48px;
+      height: 48px;
+      border: 3px solid #1e3a8a;
+      border-top-color: #60a5fa;
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+      box-shadow: 0 0 20px #3b82f6;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      color: #94a3b8;
+      margin-top: 1.2rem;
+      font-weight: 400;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+    }
+
+    /* navbar */
+    .navbar {
+      background: rgba(10, 15, 25, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid #1e3a8a40;
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 30px rgba(0, 50, 150, 0.2);
+    }
+
+    .navbar-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .brand {
+      font-size: 1.5rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, #a5d8ff, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+
+    /* sidebar toggle */
+    .sidebar-toggle {
+      width: 30px;
+      height: 24px;
+      background: transparent;
+      border: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .sidebar-toggle .bar {
+      width: 100%;
+      height: 2px;
+      background: #60a5fa;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 8px #3b82f6;
+    }
+
+    body.sidebar-open .sidebar-toggle .bar:nth-child(1) { transform: translateY(8px) rotate(45deg); background: #f0f9ff; }
+    body.sidebar-open .sidebar-toggle .bar:nth-child(2) { opacity: 0; }
+    body.sidebar-open .sidebar-toggle .bar:nth-child(3) { transform: translateY(-8px) rotate(-45deg); background: #f0f9ff; }
+
+    /* sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 280px;
+      height: 100%;
+      background: rgba(8, 12, 25, 0.95);
+      backdrop-filter: blur(20px);
+      border-left: 1px solid #2563eb40;
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1);
+      z-index: 200;
+      padding: 6rem 2rem 2rem;
+      box-shadow: -10px 0 40px rgba(0, 80, 255, 0.3);
+    }
+
+    body.sidebar-open .sidebar { transform: translateX(0); }
+
+    .sidebar-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(3px);
+      z-index: 150;
+      opacity: 0;
+      visibility: hidden;
+      transition: 0.3s;
+    }
+    body.sidebar-open .sidebar-overlay { opacity: 1; visibility: visible; }
+
+    .sidebar ul { list-style: none; }
+    .sidebar ul li { margin-bottom: 1.8rem; }
+    .sidebar ul li a {
+      color: #b0c7ed;
+      text-decoration: none;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.7rem 1rem;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      transition: 0.2s;
+    }
+    .sidebar ul li a i { width: 24px; color: #3b82f6; font-size: 1.2rem; }
+    .sidebar ul li a:hover {
+      background: #1e2b4a;
+      border-color: #3b82f6;
+      box-shadow: 0 0 15px #3b82f6;
+      color: white;
+    }
+
+    /* container */
+    .container {
+      max-width: 1300px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+    }
+
+    /* hero */
+    .hero {
+      margin-bottom: 3rem;
+      border-left: 4px solid #3b82f6;
+      padding-left: 2rem;
+    }
+    .hero h2 {
+      font-size: 2.5rem;
+      font-weight: 600;
+      background: linear-gradient(to right, #fff, #90caf9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      color: #7e9bc0;
+      margin-top: 0.5rem;
+      font-size: 1rem;
+      letter-spacing: 0.3px;
+    }
+
+    /* tabs */
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 2.5rem;
+      border-bottom: 1px solid #1e3a8a60;
+      padding-bottom: 0.8rem;
+    }
+    .tab {
+      background: transparent;
+      border: none;
+      color: #6b8cae;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+      padding: 0.6rem 1.5rem;
+      cursor: pointer;
+      font-size: 0.95rem;
+      border-radius: 40px;
+      transition: 0.2s;
+      position: relative;
+    }
+    .tab.active {
+      background: #11223b;
+      color: white;
+      box-shadow: 0 0 15px #2563eb, inset 0 0 5px #3b82f6;
+    }
+    .tab:hover { color: white; background: #1b2b44; }
+
+    /* API grid */
+    .api-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.2rem;
+      margin-bottom: 4rem;
+    }
+
+    .api-card {
+      background: rgba(15, 22, 36, 0.7);
+      backdrop-filter: blur(8px);
+      border: 1px solid #1e3a8a60;
+      border-radius: 24px;
+      padding: 1.5rem 1.2rem;
+      transition: 0.2s;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      transform: translateY(10px);
+      animation: cardGlowIn 0.5s forwards;
+    }
+    @keyframes cardGlowIn { to { opacity: 1; transform: translateY(0); } }
+
+    .api-card:hover {
+      border-color: #3b82f6;
+      box-shadow: 0 0 25px #2563eb, 0 10px 25px -5px #0f2b5c;
+      transform: translateY(-4px);
+    }
+
+    .api-info h3 {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+      color: #d6e4ff;
+    }
+    .method-tag {
+      background: #1e3a8a;
+      color: #a5d8ff;
+      padding: 0.2rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      border: 1px solid #3b82f6;
+      box-shadow: 0 0 8px #3b82f6;
+    }
+    .api-info p {
+      color: #889fc9;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      margin-top: 0.5rem;
+    }
+
+    .play-button {
+      background: transparent;
+      border: 1px solid #3b82f6;
+      color: #a5d8ff;
+      padding: 0.6rem 1rem;
+      border-radius: 40px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: fit-content;
+      margin-top: 1rem;
+    }
+    .play-button:hover {
+      background: #2563eb;
+      color: #000;
+      box-shadow: 0 0 20px #3b82f6;
+      border-color: white;
+    }
+
+    /* modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.3s;
+      padding: 1rem;
+    }
+    .modal.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-dialog {
+      background: #0d1326;
+      border: 1px solid #2563eb60;
+      border-radius: 32px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 550px;
+      box-shadow: 0 0 60px #2563eb, 0 20px 40px black;
+      transform: scale(0.95);
+      transition: 0.3s;
+    }
+    .modal.active .modal-dialog { transform: scale(1); }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.2rem;
+    }
+    .modal-title h5 { font-size: 1.5rem; font-weight: 500; color: white; }
+    .modal-title span { color: #7e9bc0; font-size: 0.9rem; }
+    .btn-close {
+      background: none;
+      border: none;
+      color: #647da0;
+      font-size: 2.5rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .btn-close:hover { color: white; text-shadow: 0 0 15px #3b82f6; }
+
+    .copy-section {
+      background: #0f1a2f;
+      border: 1px solid #1e3a8a;
+      border-radius: 60px;
+      padding: 0.5rem 1rem;
+      display: flex;
+      gap: 0.5rem;
+      margin: 1rem 0;
+    }
+    #copyEndpointText {
+      flex: 1;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: #b8d1ff;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    #copyUrlBtn {
+      background: #1e3a8a;
+      border: none;
+      color: white;
+      padding: 0.4rem 1rem;
+      border-radius: 30px;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 0 10px #3b82f6;
+      transition: 0.2s;
+    }
+    #copyUrlBtn:hover { background: #2563eb; }
+
+    #paramForm input {
+      width: 100%;
+      background: #101b30;
+      border: 1px solid #1e3a8a;
+      border-radius: 40px;
+      padding: 0.9rem 1.2rem;
+      margin-bottom: 1rem;
+      color: white;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    #paramForm input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 20px #3b82f6;
+    }
+
+    #submitParamBtn {
+      background: #1e3a8a;
+      border: none;
+      color: white;
+      padding: 0.9rem;
+      width: 100%;
+      border-radius: 40px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 0 20px #2563eb;
+      transition: 0.2s;
+    }
+    #submitParamBtn:hover { background: #2563eb; box-shadow: 0 0 35px #3b82f6; }
+
+    #apiResponseContent {
+      background: #0a1020;
+      border-radius: 24px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+      border: 1px solid #1e3a8a;
+      overflow: auto;
+    }
+    #apiResponseContent pre {
+      color: #b4d0ff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+    }
+
+    /* utilitas */
+    .d-none { display: none !important; }
+
+    /* mobile */
+    @media (max-width: 640px) {
+      .container { padding: 0 1.2rem; }
+      .hero h2 { font-size: 2rem; }
+      .api-list { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- loading screen tetap sama secara struktur, hanya warna glow -->
+  <div id="loading-screen">
+    <div class="loading-spinner-large"></div>
+    <div class="loading-text">booting interface ...</div>
+  </div>
+  
+  <header class="navbar">
+    <div class="navbar-container">
+      <span id="navname" class="brand">API Vault</span>
+      <button id="sidebar-toggle" class="sidebar-toggle">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+    </div>
+  </header>
+
+  <div id="sidebar" class="sidebar">
+    <ul>
+      <li><a id="github" href="https://github.com/X-Skycode" target="_blank"><i class="fab fa-github"></i> Github</a></li>
+      <li><a id="contact" href="https://t.me/sendyhost" target="_blank"><i class="fas fa-paper-plane"></i> Contact</a></li>
+      <li><a id="sourcecode" href="https://github.com/X-Skycode/selfbot" target="_blank"><i class="fas fa-code"></i> Source</a></li>
+      <li><a href="#" id="theme-toggle" style="pointer-events: none; opacity: 0.6;"><i class="fas fa-moon"></i> Dark (fixed)</a></li>
+    </ul>
+  </div>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+  <div class="container">
+    <section class="hero">
+      <h2 id="apiTitle"></h2>
+      <p>⚠️ Simple, fast, glowing. perfect for bot services. default apikey: <span style="color:#60a5fa">sendy</span></p>
+    </section>
+
+    <section>
+      <div class="tabs" id="tabs"></div>
+      <div id="api-list" class="api-list"></div>
+    </section>
+  </div>
+
+  <!-- modal -->
+  <div class="modal" id="apiResponseModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">
+          <h5></h5>
+          <span id="desc"></span>
+        </div>
+        <button class="btn-close" id="btn-close">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="copy-section d-none">
+          <span id="copyEndpointText"></span>
+          <button id="copyUrlBtn">copy</button>
+        </div>
+        <form id="paramForm"></form>
+        <button id="submitParamBtn" class="d-none">→ execute</button>
+        <div id="apiResponseLoading" class="loading-spinner d-none"></div>
+        <div id="apiResponseContent" class="d-none"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        // theme toggle non-aktif (permanen dark), tapi kita sembunyikan interaksinya
+        // tapi karena di sidebar ada, kita disable dengan pointer-events: none via css, biarkan.
+
+        document.querySelector('.container').style.display = 'none';
+
+        const tabsContainer = document.getElementById("tabs");
+        const apiList = document.getElementById("api-list");
+        const paramForm = document.getElementById("paramForm");
+        const submitBtn = document.getElementById("submitParamBtn");
+        const modal = document.getElementById("apiResponseModal");
+        const responseEl = document.getElementById("apiResponseContent");
+        const loadingEl = document.getElementById("apiResponseLoading");
+        const urlsSection = document.querySelector(".copy-section");
+        
+        let currentEndpoint = "";
+        let settings = {}, apis = {};
+        let OpeningApi = "Orderkuota";
+
+        try {
+          const [settingsRes, apisRes] = await Promise.all([
+            fetch("/set"),
+            fetch("/endpoints")
+          ]);
+          settings = await settingsRes.json();
+          apis = await apisRes.json();
+        } catch (err) {
+          console.error("Gagal memuat konfigurasi API:", err);
+          document.getElementById('loading-screen').innerHTML = '<div style="color:#f87171;">Error: gagal load.</div>';
+          return;
+        }
+
+        const setContent = (id, prop, val) => {
+          const el = document.getElementById(id);
+          if (el) el[prop] = val;
+        };
+
+        setContent("page", "textContent", "API Vault · " + (settings.apiTitle || "Docs"));
+        setContent("apiTitle", "textContent", "// " + (settings.apiTitle || "API Documentation"));
+        setContent("navname", "textContent", settings.apiTitle || "API Vault");
+
+        const chlink = document.getElementById('sourcecode');
+        if (chlink) chlink.href = settings.channelLink || '#';
+        const githublink = document.getElementById('github');
+        if (githublink) githublink.href = settings.githubLink || '#';
+        const contactlink = document.getElementById('contact');
+        if (contactlink) contactlink.href = settings.contactLink || '#';
+
+        const categories = Object.keys(apis);
+        if (categories.includes(OpeningApi)) {
+          let idx = categories.indexOf(OpeningApi);
+          categories.splice(idx, 1);
+          categories.unshift(OpeningApi);
+        } else { OpeningApi = null; }
+
+        if (categories.length === 0) return;
+
+        categories.forEach(key => {
+          const btn = document.createElement("button");
+          btn.className = "tab";
+          btn.dataset.tab = key;
+          btn.textContent = key;
+          tabsContainer.appendChild(btn);
+        });
+
+        function renderAPIs(category) {
+          apiList.innerHTML = "";
+          if (!apis[category]) return;
+          apis[category].sort((a, b) => a.name.localeCompare(b.name)).forEach((api, i) => {
+            const card = document.createElement("div");
+            card.className = "api-card";
+            card.style.animationDelay = `${i * 0.05}s`;
+            card.innerHTML = `
+              <div class="api-info">
+                <h3><span class="method-tag">GET</span> ${api.name}</h3>
+                ${api.desc ? `<p>${api.desc}</p>` : ""}
+              </div>
+              <button class="play-button" data-endpoint="${api.path}" data-api="${api.name}" data-desc="${api.desc}">
+                try it <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
+              </button>
+            `;
+            apiList.appendChild(card);
+          });
+        }
+
+        const defaultCategory = OpeningApi && apis[OpeningApi] ? OpeningApi : categories[0];
+        renderAPIs(defaultCategory);
+        const activeTab = [...tabsContainer.children].find(t => t.dataset.tab === defaultCategory);
+        if (activeTab) {
+          [...tabsContainer.children].forEach(t => t.classList.remove("active"));
+          activeTab.classList.add("active");
+        }
+
+        tabsContainer.addEventListener("click", (e) => {
+          const tab = e.target.closest(".tab");
+          if (!tab) return;
+          [...tabsContainer.children].forEach(t => t.classList.remove("active"));
+          tab.classList.add("active");
+          renderAPIs(tab.dataset.tab);
+        });
+
+        document.addEventListener("click", (e) => {
+          const play = e.target.closest(".play-button");
+          if (!play) return;
+          const endpoint = play.dataset.endpoint;
+          const apiName = play.dataset.api;
+          const desc = play.dataset.desc;
+
+          currentEndpoint = endpoint;
+          paramForm.innerHTML = "";
+          paramForm.classList.remove("d-none");
+          submitBtn.classList.add("d-none");
+          urlsSection.classList.add("d-none");
+          loadingEl.classList.add("d-none");
+          responseEl.classList.add("d-none");
+
+          document.querySelector(".modal-header h5").innerHTML = `<span class="method-tag">GET</span> ${apiName}`;
+          document.querySelector("#desc").textContent = desc || " ";
+
+          if (endpoint.includes("?")) {
+            const params = endpoint.split("?")[1].split("&");
+            params.forEach(p => {
+              const key = p.split("=")[0];
+              paramForm.innerHTML += `<input type="text" id="${key}" name="${key}" placeholder="input ${key}" required />`;
+            });
+            submitBtn.classList.remove("d-none");
+          } else {
+            fetchAPI(endpoint);
+          }
+          modal.classList.add("active");
+        });
+
+        document.getElementById("btn-close").addEventListener("click", () => {
+          modal.classList.remove("active");
+        });
+        modal.addEventListener("click", (e) => { if (e.target === modal) modal.classList.remove("active"); });
+
+        submitBtn.addEventListener("click", () => {
+          if (!paramForm.checkValidity()) return paramForm.reportValidity();
+          paramForm.classList.add("d-none");
+          submitBtn.classList.add("d-none");
+          loadingEl.classList.remove("d-none");
+
+          let endpoint = currentEndpoint.split("?")[0] + "?";
+          const inputs = paramForm.querySelectorAll("input");
+          inputs.forEach((inp, i) => {
+            endpoint += `${inp.name}=${encodeURIComponent(inp.value)}${i < inputs.length-1 ? "&" : ""}`;
+          });
+          fetchAPI(endpoint);
+        });
+
+        document.getElementById('copyUrlBtn').addEventListener('click', () => {
+          navigator.clipboard.writeText(document.getElementById('copyEndpointText').textContent);
+        });
+
+        // sidebar toggle
+        document.getElementById('sidebar-toggle').addEventListener('click', () => {
+          document.body.classList.toggle('sidebar-open');
+        });
+        document.getElementById('sidebar-overlay').addEventListener('click', () => {
+          document.body.classList.remove('sidebar-open');
+        });
+
+        // loading hilang
+        setTimeout(() => {
+          document.getElementById('loading-screen').style.opacity = '0';
+          setTimeout(() => {
+            document.getElementById('loading-screen').style.display = 'none';
+            document.querySelector('.container').style.display = 'block';
+          }, 500);
+        }, 1000);
+
+        function fetchAPI(endpoint) {
+          const fullURL = window.location.origin + endpoint;
+          responseEl.innerHTML = "";
+          responseEl.classList.add("d-none");
+          urlsSection.classList.remove("d-none");
+          loadingEl.classList.remove("d-none");
+          document.getElementById("copyEndpointText").textContent = fullURL;
+
+          fetch(fullURL)
+            .then(async res => {
+              loadingEl.classList.add("d-none");
+              const contentType = res.headers.get("content-type") || "";
+              const data = await res.blob();
+              const blobUrl = URL.createObjectURL(data);
+
+              if (contentType.includes("json")) {
+                try { 
+                  const text = await data.text();
+                  const json = JSON.parse(text);
+                  responseEl.innerHTML = `<pre>${JSON.stringify(json, null, 2)}</pre>`;
+                } catch { responseEl.innerHTML = `<pre>${await data.text()}</pre>`; }
+              } else if (contentType.startsWith("image/")) {
+                responseEl.innerHTML = `<img src="${blobUrl}" style="max-width:100%; border-radius:16px;" />`;
+              } else if (contentType.startsWith("video/")) {
+                responseEl.innerHTML = `<video controls style="width:100%; border-radius:16px;"><source src="${blobUrl}" /></video>`;
+              } else if (contentType.startsWith("audio/")) {
+                responseEl.innerHTML = `<audio controls><source src="${blobUrl}" /></audio>`;
+              } else {
+                responseEl.innerHTML = `<pre>${(await data.text()).substring(0, 800)}</pre>`;
+              }
+              responseEl.classList.remove("d-none");
+            })
+            .catch(err => {
+              loadingEl.classList.add("d-none");
+              responseEl.classList.remove("d-none");
+              responseEl.innerHTML = `<pre style="color:#f87171;">Error: ${err.message}</pre>`;
+            });
+        }
+      } catch (e) {
+        document.getElementById('loading-screen').innerHTML = `<div style="color:#f87171;">Fatal: ${e}</div>`;
+      }
+    });
+  </script>
+</body>
+</html>
