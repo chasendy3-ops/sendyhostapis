@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SendyHost API's · Welcome</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:opsz,wght@14..32,300;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+      background: #0a0f1e;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e3a8a;
+      border-radius: 8px;
+      box-shadow: 0 0 8px #3b82f6;
+    }
+
+    body {
+      font-family: 'Inter', 'JetBrains Mono', monospace;
+      background: #0a0c14;
+      color: #e1e9f0;
+      line-height: 1.5;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(0, 100, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 100, 255, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at center, #0f2b5c30 0%, #0a0c14 80%);
+      animation: glowPulse 8s infinite alternate;
+      z-index: -2;
+    }
+
+    @keyframes glowPulse {
+      0% { opacity: 0.5; transform: scale(1); }
+      100% { opacity: 1; transform: scale(1.15); }
+    }
+
+    .navbar {
+      background: rgba(8, 12, 25, 0.85);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid #1e3a8a80;
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 30px rgba(0, 50, 150, 0.25);
+    }
+
+    .navbar-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .brand {
+      font-size: 1.6rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #a5d8ff, #3b82f6, #2563eb);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.5px;
+      text-shadow: 0 0 8px #3b82f660;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .welcome-card {
+      background: rgba(15, 22, 36, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid #2b6eff80;
+      border-radius: 48px;
+      padding: 3rem 4rem;
+      text-align: center;
+      max-width: 700px;
+      width: 100%;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 170, 255, 0.1);
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .welcome-icon {
+      font-size: 5rem;
+      color: #3b82f6;
+      margin-bottom: 1.5rem;
+      text-shadow: 0 0 20px #3b82f6;
+    }
+
+    .welcome-card h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff, #90caf9, #3b82f6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 1rem;
+    }
+
+    .welcome-card .subtitle {
+      color: #7e9bc0;
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      border-bottom: 1px dashed #2b6eff60;
+      display: inline-block;
+      padding-bottom: 0.5rem;
+    }
+
+    .welcome-card .description {
+      color: #a0b8e0;
+      margin-bottom: 2.5rem;
+      line-height: 1.7;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.9rem 2rem;
+      border-radius: 60px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      border: 1px solid #3b82f6;
+      color: white;
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 30px #3b82f6;
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid #3b82f6;
+      color: #a5d8ff;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(59, 130, 246, 0.2);
+      transform: translateY(-3px);
+      box-shadow: 0 0 20px #3b82f6;
+      color: white;
+    }
+
+    .status-bar {
+      margin-top: 3rem;
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: #6b8cae;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #2effb0;
+      box-shadow: 0 0 8px #2effb0;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      color: #4a6a8a;
+      font-size: 0.75rem;
+      border-top: 1px solid #1e3a8a40;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 640px) {
+      .welcome-card { padding: 2rem 1.5rem; }
+      .welcome-card h1 { font-size: 2rem; }
+      .button-group { flex-direction: column; align-items: center; }
+      .btn { width: 200px; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-container">
+      <span class="brand">⚡ SendyHost API's</span>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="welcome-card">
+      <div class="welcome-icon">
+        <i class="fas fa-code-branch"></i>
+      </div>
+      <h1>SendyHost API'S</h1>
+      <div class="subtitle">Premium API Services for Modern Developers</div>
+      <div class="description">
+        <i class="fas fa-crown" style="color: #fbbf24; margin-right: 8px;"></i>
+        Selamat datang di dokumentasi API SendyHost.<br>
+        Kami menyediakan berbagai endpoint berkualitas tinggi untuk kebutuhan bot, aplikasi, dan layanan digital Anda.<br><br>
+        <span style="color: #60a5fa;">🚀 Fast • ⚡ Reliable • 🔒 Secure</span>
+      </div>
+      <div class="button-group">
+        <a href="index.html" class="btn btn-primary">
+          <i class="fas fa-book-open"></i> Docs
+        </a>
+        <a href="request.html" class="btn btn-secondary">
+          <i class="fas fa-paper-plane"></i> Request
+        </a>
+      </div>
+      <div class="status-bar">
+        <div class="status-item"><div class="status-dot"></div><span>API Active</span></div>
+        <div class="status-item"><i class="fas fa-server"></i><span>24/7 Uptime</span></div>
+        <div class="status-item"><i class="fas fa-shield-alt"></i><span>SSL Encrypted</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>© 2026 SendyHost API's | Powered by Vercel | All systems operational</p>
+  </div>
+</body>
+</html>
